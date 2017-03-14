@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Directional Lighting</title>
+	<script type="text/javascript" src="main.js"></script>
+	<style type="text/css">
+	canvas {
+		display: block;
+		border-style: solid;
+		margin-left: 50px;
+		margin-right: 50px;
+		margin-top: 50px;
+		margin-bottom: 50px; 
+	}
+	</style>
+</head>
+<body onload="start()">
+	<canvas id="canvas" width="1000px" height="700px"></canvas>
+	<script id="vertexSource" type="notjs">
+	attribute vec4 a_position;
+	attribute vec3 a_normal;
+	uniform mat4 u_worldIT;  // 'IT' - inverse transpose .. to compute the transformed normals
+	uniform mat4 u_worldVP;  // 'VP' - View Projection  .. to compute the transformed points
+	varying vec3 v_normal;
+
+	void main(){
+		gl_Position = u_worldVP*a_position;
+		v_normal = mat3(u_worldIT)*a_normal;
+		// Notice we are multiplying a_normal by mat3(u_world) because normals are directions so we don't
+		// care about the translation. The orientation portion of the matrix is only the top left 3x3 matrix.
+		
+		// v_normal = (u_worldIT*vec4(a_normal, 0)).xyz;  // another way to acheive the same as above
+															// This is more common way of the two
+															
+		/* Yet another way would be to create u_worldIT as mat3. There are 2 reasons not to do that. One is we might have other needs for the full u_worldInverseTranspose so passing the entire mat4 means we can meet those other needs. Another is that all of our matrix functions in JavaScript make 4x4 matrices. Making a whole other set for 3x3 matrices or even converting from 4x4 to 3x3 is work we'd rather not do unless there was a more compelling reason.*/
+	}
+													
+	</script>
+
+	<script id="fragmentSource" type="notjs">
+	precision mediump float;
+	uniform vec4 u_color;
+	uniform vec3 u_reverseLD;  // 'LD': Light Direction
+	varying vec3 v_normal;
+
+	void main(){
+		// Because v_normal is interpolated, it will not be normalized (a unit vector)
+		vec3 normal = normalize(v_normal);
+
+		float light = dot(normal, u_reverseLD);
+
+		gl_FragColor = u_color;
+		gl_FragColor.rgb *= light;  // we adjust just the color position and not alpha by light
+	}
+	</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>TEST</title>
+	<script type="text/javascript" src="main.js"></script>
+	
+	<style type="text/css">
+	html, body {
+		margin: 0px; /* Removing any decorations so that the canvas covers the full screen*/
+	}
+
+	canvas {  
+		display: block;
+	}
+	</style>
+</head>
+<body onload="start()">
+
+	<canvas id="glCanvas"> </canvas>
+	
+	<script id="3d-vertex-shader-normalized" type="notjs"> // notjs: do not interpret this as a javascript
+  													// beacuse we want it to be a string instead
+  		attribute vec4 a_position;   // since we are drawing 2d point in this examples
+  		void main() {
+ 			// gl_Position is a special variable a vertex shader is responsible for setting:
+   			gl_Position = a_position;   // if vec2 type was choosen this would be: vec4(clipSpace, 0, 1)
+  		}
+
+	</script>
+	
+	<script id="3d-fragment-shader" type="notjs">
+		
+		precision mediump float; // fragment shaders don't have a default precision (mediump -> medium precision)
+		void main(){
+			gl_FragColor = vec4(1, 0, 0.5, 1); // return reddish-pruple (equivalent to [255,0,127,255])
+		} 
+
+	</script>
+
+	<script id="2d-vertex-shader-general" type="notjs">
+		
+		attribute vec2 a_position;
+		uniform vec2 u_resolution;
+		void main(){
+			vec2 zeroToOne = a_position / u_resolution;
+   			vec2 zeroToTwo = zeroToOne*2.0;
+   			vec2 clipSpace = zeroToTwo - 1.0;
+   			gl_Position = vec4(clipSpace*vec2(1,-1), 0, 1);  // multiply it by (1,-1) to convert it into the
+		}															// canvas's co-ordinate system
+
+	</script>
+	
+</body>
+</html>

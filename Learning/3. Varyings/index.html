@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Varyings</title>
+	<script type="text/javascript" src="main.js"> </script>
+	<style type="text/css">
+		html, body {
+			margin: 0px;
+		}
+		canvas {
+			display: block;
+		}
+	</style>
+</head>
+<body onload="start()">
+	<canvas id="canvas"></canvas>
+	<script id="vertexSource" type="notjs">
+		attribute vec2 a_position;
+		varying vec4 v_color;  // varying - to pass data from vertex shader to the fragment shader
+		uniform vec2 u_resolution;
+		void main(){
+			vec2 clipSpace = (a_position/u_resolution)*2.0 - 1.0;
+			gl_Position = vec4(clipSpace*vec2(1,-1), 0, 1);  // goes from -1.0 to +1.0
+			v_color = gl_Position*0.5 + 0.5;  // goes from 0.0 to 1.0 (coloring based on position)
+		}
+	</script>
+	<script id="fragmentSource" type="notjs">
+		
+		precision mediump float;
+
+		varying vec4 v_color;  // ** same name as type as the one declared under vertexSource **
+		void main(){
+			gl_FragColor = v_color;  // although we supply only 3 colors for the 3 vertices
+		}								// the fragment shader interpolates the colors in between, i.e.,
+									// the colors "vary" btw vertices & thus the name varyings. You can have a
+									// single color by specifying the same color to all the 3 vertices
+	</script>								
+</body>
+</html>

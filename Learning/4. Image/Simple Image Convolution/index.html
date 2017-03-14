@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<script type="text/javascript" src="main.js"> </script>
+	<title>Image</title>
+	<style type="text/css">
+	html, body {
+		margin: 0px;
+	}
+	canvas {
+		display: block;
+	}
+	</style>
+</head>
+<body onload="start()">
+	<canvas id="canvas"></canvas>
+	<script id="vertexSource" type="notjs">
+		attribute vec2 a_position;
+		attribute vec2 a_textCoord;
+		uniform vec2 u_resolution;
+		varying vec2 v_textCoord;  // important that it is "varying" so that the GPU interpolates
+
+		void main(){
+			vec2 clipSpace = (a_position/u_resolution)*2.0 -1.0;
+			gl_Position = vec4(clipSpace*vec2(1,-1), 0, 1);
+			v_textCoord = a_textCoord;
+		}
+	</script>
+	
+	<script id="fragmentSource" type="notjs">
+		precision mediump float;
+		uniform sampler2D u_texture;
+		uniform vec2 u_textureSize;
+		uniform float u_kernel[9];
+		uniform float u_kernelWeight;
+		varying vec2 v_textCoord;
+		void main(){
+			vec2 onePixel = vec2(1.0,1.0) / u_textureSize;
+			vec2 v_textNormCoord = v_textCoord / u_textureSize;  // normalizing the coordinates
+			vec4 colorSum =
+     			texture2D(u_texture, v_textNormCoord + onePixel*vec2(-1, -1))*u_kernel[0] +
+     			texture2D(u_texture, v_textNormCoord + onePixel*vec2( 0, -1))*u_kernel[1] +
+     			texture2D(u_texture, v_textNormCoord + onePixel*vec2( 1, -1))*u_kernel[2] +
+     			texture2D(u_texture, v_textNormCoord + onePixel*vec2(-1,  0))*u_kernel[3] +
+     			texture2D(u_texture, v_textNormCoord + onePixel*vec2( 0,  0))*u_kernel[4] +
+     			texture2D(u_texture, v_textNormCoord + onePixel*vec2( 1,  0))*u_kernel[5] +
+     			texture2D(u_texture, v_textNormCoord + onePixel*vec2(-1,  1))*u_kernel[6] +
+     			texture2D(u_texture, v_textNormCoord + onePixel*vec2( 0,  1))*u_kernel[7] +
+     			texture2D(u_texture, v_textNormCoord + onePixel*vec2( 1,  1))*u_kernel[8] ;
+
+     		gl_FragColor = vec4((colorSum / u_kernelWeight).rgb, 1.0);  // we only select rgb and not a
+															// since our kernel ain't affecting the alpha value
+		}
+	</script>
+
+</body>
+</html>

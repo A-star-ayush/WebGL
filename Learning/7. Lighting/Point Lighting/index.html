@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Point Lighting</title>
+	<script type="text/javascript" src="main.js"></script>
+	<style type="text/css">
+	canvas {
+		display: block;
+		border-style: solid;
+		margin-left: 50px;
+		margin-right: 50px;
+		margin-top: 50px;
+		margin-bottom: 50px; 
+	}
+	</style>
+</head>
+<body onload="start()">
+	<canvas id="canvas" width="1000px" height="700px"></canvas>
+	<script id="vertexSource" type="notjs">
+	attribute vec4 a_position;
+	attribute vec3 a_normal;
+
+	uniform mat4 u_world;
+	uniform mat4 u_worldIT;  // 'IT' - inverse transpose .. to compute the transformed normals
+	uniform mat4 u_worldVP;  // 'VP' - View Projection  .. to compute the transformed points
+	uniform vec3 u_lightWP;  // 'WP' - world position  .. the point in 3D serving as the source of the light
+	uniform vec3 u_viewWP;   // 'WP' - world position  .. for specular highlighting
+
+	varying vec3 v_normal;
+	varying vec3 v_surfaceToLight;
+	varying vec3 v_surfaceToView;  // for specular highlighting
+
+	void main(){
+		gl_Position = u_worldVP*a_position;
+		v_normal = mat3(u_worldIT) * a_normal;
+
+		vec3 surfaceWorldPosition = (u_world*a_position).xyz;
+		v_surfaceToLight = u_lightWP - surfaceWorldPosition;
+
+		v_surfaceToView = u_viewWP - surfaceWorldPosition;
+	}
+													
+	</script>
+
+	<script id="fragmentSource" type="notjs">
+	precision mediump float;
+	uniform vec4 u_color;
+	uniform float u_shineFactor;  // for control the brightness and falloff of the specular highlighting
+	// By raising the power it scrunches the range where it goes bright to the right.
+
+	varying vec3 v_normal;
+	varying vec3 v_surfaceToLight;
+	varying vec3 v_surfaceToView;
+
+	uniform vec3 u_lightColor;  // we can add light to our light and specular highlighting
+	uniform vec3 u_specColor;  // set them to 1 to default to the whitish light
+
+	void main(){
+		vec3 normal = normalize(v_normal);
+		vec3 surfaceToLight = normalize(v_surfaceToLight);
+
+		vec3 surfaceToView = normalize(v_surfaceToView);
+		vec3 halfVector = normalize(surfaceToLight + surfaceToView); // as per the parallelogram law
+
+		float light = dot(normal, surfaceToLight);
+		float specular = 0.0;
+		if(light > 0.0){
+			specular = pow(dot(normal, halfVector), u_shineFactor);
+		}
+		/* The dot product can go negative. Taking a negative number to a power is undefined which would be bad. So, if the dot product would possibly be negative then we just leave specular at 0.0. */
+		gl_FragColor = u_color;
+		gl_FragColor.rgb *= light*u_lightColor;
+		gl_FragColor.rgb += specular*u_specColor;
+	}
+	</script>
+</body>
+</html>
