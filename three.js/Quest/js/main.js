@@ -126,61 +126,15 @@ function createObjects(){
 	shapes.she.cone.material.color = new THREE.Color(0xf07199); 
 }
 
-/*********** ACTIONS *****************/
+/*********** UPDATE STORIES *****************/
 
-function startStars(story){
-	story.actionData = window.setInterval(Star, 25);
-}
-
-function Star(){
-	var geometry = new THREE.CircleGeometry(0.01);
-	var material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
-	var circle = new THREE.Mesh(geometry, material);
-	circle.position.x  = -8 + Math.random()*17;
-	circle.position.y  = -4 + Math.random()*10;
-	scene.add(circle);
-}
-
-function stopStars(story){
-	window.clearInterval(story.actionData);
-}
-
-function showHer(story){
-	console.log("showHer was called");
-	scene.add(shapes.she.mesh);
-}
-
-function hideHer(story){
-	console.log("hideHer was called");
-	scene.remove(shapes.she.mesh);
-}
-
-
-/*********** STORIES *****************/
-
-function loadStories(){
-	stories = new Array();
-	stories.push({ temp: true, precision: 1000, start: 1, end: 5, state: 0, action: startStars, clear: stopStars,
-				   text: "Quest!", 
-				   size: "150px", left: "35%", top: "35%", fadein: 5, fadeout: 3 });
-	stories.push({ temp: true, precision: 1000, start: 8, end: 10, state: 0, action: null, clear: null,
-				   text: "When I woke up, she wasn't there.<br><strong><font size=15>Gone.</font></strong>", 
-				   size: "40px", left: "50%", top: "25%",  fadein: 1, fadeout: 1 });
-	stories.push({ temp: true, precision: 1000, start: 12, end: 15, state: 0, action: null, clear: null,
-				   text: "Between what is said and not meant,<br>and what is meant and not said,<br>most of the"
-				   	     + "<strong><font size=15> love</font></strong> is lost.", 
-				   size: "40px", left: "55%", top: "35%",  fadein: 2, fadeout: 2 });
-	stories.push({ temp: false, precision: 1000, start: 17, end: 20, state: 0, action: null, clear: null,
-				   text: "Our Diary.<br><strong><font size=15>The chapters of our life.</font><strong>", 
-				   size: "40px", left: "55%", top: "35%",  fadein: 2, fadeout: 2 });
-}
 
 function updateInfo(progress){
 
 	var story = stories[updateInfo.index];
 	progress /= story.precision;
 
-	if(progress > story.start &&  story.state==0){
+	if(progress >= story.start &&  story.state==0){
 		info.innerHTML = story.text;
 		info.style.display = "block";
 		info.style.fontSize = story.size;
@@ -188,36 +142,26 @@ function updateInfo(progress){
 		info.style.top = story.top;
 		info.style.webkitAnimation = "fadein "+story.fadein+"s";
 		info.style.mozAnimation = "fadein "+story.fadein+"s";
+		if(story.actions[0]!=null) story.actions[0](story);
 		story.state = 1;
 	}
 
-	else if(progress > story.end && story.state==1){
+	else if(progress >= story.end && story.state==1){
 		info.style.webkitAnimation = "fadeout "+story.fadeout+"s";
 		info.style.mozAnimation = "fadeout "+story.fadeout+"s";
-		if(story.action!=null) story.action(story);
+		if(story.actions[1]!=null) story.actions[1](story);
 		story.state = 2;
 	}
 
-	else if(progress > (story.end+story.fadeout) && story.state==2){
+	else if(progress >= (story.end+story.fadeout) && story.state==2){
 		info.style.display = "none";
 		story.state = 3;
-		if(story.clear!=null) story.clear(story);
+		if(story.actions[2]!=null) story.actions[2](story);
 		if(story.temp) ++updateInfo.index;
 	}	
 }
 
-/*********** POSITIONAL UPDATES *****************/
-
-function loadPositionalUpdates(){
-	pUpdates = new Array();
-	pUpdates.push( { temp: true, precision: 250, start: 28, end: 60, state: 0, 
-				     once: { me: [0,0,0,0,0,0], sphere:[-0.1,0,0,0,0,0], cone: [0,0,0,0,0,0] },
-					 multi: { me: [-0.004,0,0,0.003,0,0], sphere:[0,0,0,0,0,0,0], cone: [0,0,0,0,0,0] } });
-	pUpdates.push( { temp: false, precision: 250, start: 60, end: 90, state: 0, 
-				     once: { me: [0,0,0,0,0,0], sphere:[ 0,0,0,0,0,0], cone: [0,0,0,0,0,0] },
-					 multi: { me: [-0.006,0,0,-0.003,0.003,0], sphere:[0,0,0,0,0,0,0], cone: [0,0,0,0,0,0] } });
-
-}
+/*********** UPDATE POSITIONS *****************/
 
 
 function updatePositions(progress){
@@ -225,71 +169,40 @@ function updatePositions(progress){
 	var update = pUpdates[updatePositions.index];
 	progress /= update.precision;
 
-	if(progress > update.start &&  update.state < 2){
-		if(update.state == 0){
+	if(progress > update.start &&  update.state==0){
 			var s = shapes.me.mesh;
-			var u = update.once;
 
-			s.position.x += u.me[0];
-			s.position.y += u.me[1];
-			s.position.z += u.me[2];
-			s.rotation.x += u.me[3];
-			s.rotation.y += u.me[4];
-			s.rotation.z += u.me[5];
+			s.position.x += update.me[0];
+			s.position.y += update.me[1];
+			s.position.z += update.me[2];
+			s.rotation.x += update.me[3];
+			s.rotation.y += update.me[4];
+			s.rotation.z += update.me[5];
 
 			s = shapes.me.sphere;
 
-			s.position.x += u.sphere[0];
-			s.position.y += u.sphere[1];
-			s.position.z += u.sphere[2];
-			s.rotation.x += u.sphere[3];
-			s.rotation.y += u.sphere[4];
-			s.rotation.z += u.sphere[5];
-
-			s = shapes.me.cone;
-			s.position.x += u.cone[0];
-			s.position.y += u.cone[1];
-			s.position.z += u.cone[2];			
-			s.rotation.x += u.cone[3];
-			s.rotation.y += u.cone[4];
-			s.rotation.z += u.cone[5];
-
-			update.state = 1;
-		}
-
-		else{
-			var s = shapes.me.mesh;
-			var u = update.multi;
-
-			s.position.x += u.me[0];
-			s.position.y += u.me[1];
-			s.position.z += u.me[2];
-			s.rotation.x += u.me[3];
-			s.rotation.y += u.me[4];
-			s.rotation.z += u.me[5];
-
-			s = shapes.me.sphere;
-
-			s.position.x += u.sphere[0];
-			s.position.y += u.sphere[1];
-			s.position.z += u.sphere[2];
-			s.rotation.x += u.sphere[3];
-			s.rotation.y += u.sphere[4];
-			s.rotation.z += u.sphere[5];
+			s.position.x += update.sphere[0];
+			s.position.y += update.sphere[1];
+			s.position.z += update.sphere[2];
+			s.rotation.x += update.sphere[3];
+			s.rotation.y += update.sphere[4];
+			s.rotation.z += update.sphere[5];
 
 			s = shapes.me.cone;
 
-			s.position.x += u.cone[0];
-			s.position.y += u.cone[1];
-			s.position.z += u.cone[2];
-			s.rotation.x += u.cone[3];
-			s.rotation.y += u.cone[4];
-			s.rotation.z += u.cone[5];
-		}
+			s.position.x += update.cone[0];
+			s.position.y += update.cone[1];
+			s.position.z += update.cone[2];
+			s.rotation.x += update.cone[3];
+			s.rotation.y += update.cone[4];
+			s.rotation.z += update.cone[5];
+
+			if(update.actions[0]!=null) update.actions[0](update);
 	}
 
-	if(progress > update.end && update.state==1){
-		update.state = 2;
+	if(progress > update.end && update.state==0){
+		update.state = 1;
+		if(update.actions[1]!=null) update.actions[1](update);
 		if(update.temp) ++updatePositions.index;
 
 	}
