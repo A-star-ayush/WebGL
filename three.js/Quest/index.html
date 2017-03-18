@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="https://fonts.googleapis.com/css?family=Josefin+Sans" rel="stylesheet">
+	<title>Quest</title>
+	<style>
+		canvas {
+			display: block;
+			background-color: black;
+		}
+		html, body{
+			margin: 0px;
+		}
+
+		@-moz-keyframes fadein {
+    		from { opacity: 0; }
+    		to   { opacity: 1; }
+		}
+		
+		@-webkit-keyframes fadein {
+    		from { opacity: 0; }
+    		to   { opacity: 1; }
+		}
+		
+		@-moz-keyframes fadeout {
+    		from { opacity: 1; }
+    		to   { opacity: 0; }
+		}
+		
+		@-webkit-keyframes fadeout {
+    		from { opacity: 1; }
+    		to   { opacity: 0; }
+		}
+		
+
+		#info {
+			font-family: 'Josefin Sans', sans-serif;
+			color: white;
+			position: absolute;
+			width: 40%;
+			height: 40%;
+			z-index: 100;
+			display: none;
+		}
+	</style>
+</head>
+<body>
+	<audio id="track1" src="audio/one_2.mp3"></audio>
+	<script src="js/three.js"></script>
+	<script src="js/main.js"></script>
+	<div id="info"></div>
+
+</body>
+</html>
