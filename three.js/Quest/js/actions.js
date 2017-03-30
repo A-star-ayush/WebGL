@@ -34,8 +34,8 @@ function showHer(story){
 }
 
 function increaseOpacity(){
-	shapes.she.sphere.material.opacity += 0.01;
-	shapes.she.cone.material.opacity += 0.01;
+	shapes.she.sphere.material.opacity += 0.015;
+	shapes.she.cone.material.opacity += 0.015;
 }
 
 function hideHer(story){
