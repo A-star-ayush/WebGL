@@ -97,7 +97,7 @@ function start(){
     var cameraMatrix = m4.yRotation(Math.PI/10);  // change this value and see the F's rotating around the axis
     cameraMatrix = m4.translate(cameraMatrix, 0, 0, radius*1.5);
     
-    var cameraPosition = [cameraMatrix[12], cameraMatrix[13], cameraMatrix[14] ];
+    var cameraPosition = [ cameraMatrix[12], cameraMatrix[13], cameraMatrix[14] ];
     var up = [0, 1, 0];
     var target = [radius, 0, 0];  // let's make our camera follow (always look at) the first 'F' among the five
 

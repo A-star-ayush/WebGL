@@ -39,8 +39,8 @@ function Program(gl, vid, fid, shaderFunc, programFunc){
 function start(){
 
 	var canvas = document.getElementById("canvas");
-	canvas.width = 900;
-	canvas.height = 900;
+	canvas.width = 1300;
+	canvas.height = 1300;
 
 	var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
 	if(!gl){

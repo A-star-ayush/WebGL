@@ -14,8 +14,8 @@
 
 // These shaders are linked together into a "GLSL" program. GLSL - GL's Shading language
 
-// shaders are to be put on the GPU and the corresponding data made available to them. to compile those 
-// shaders to put them on the GPU so first we need to get them into "strings". This can be acheived in js by
+// shaders are to be put on the GPU and the corresponding data made available to them. To compile those 
+// shaders to put them on the GPU, first we need to get them into "strings". This can be acheived in js by
 // concatenating, by using AJAX to download them, by using multiline template strings. Or in this case, 
 // by putting them in non-JavaScript typed script tags
 
